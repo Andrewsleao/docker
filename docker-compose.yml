@@ -1,0 +1,41 @@
+version: "3"
+
+services:
+   db:
+     image: mysql:5.7
+     volumes:
+       - db_data:/var/lib/mysql
+       - ./backups:/var/backups
+     restart: always
+     environment:
+       MYSQL_ROOT_PASSWORD: root
+       MYSQL_DATABASE: magento
+       MYSQL_USER: magento
+       MYSQL_PASSWORD: password
+     container_name: ${MAGE_DB}
+     ports: 
+      - 3306
+
+   mage:
+     depends_on:
+       - db
+     links:
+       - db
+     image: andrewsleao/magento2:${MAGETAG}
+     ports:
+      - "${MAGEPORT}:80"
+     volumes:
+      - ./public:/var/www/html/
+      - /etc/hosts:/etc/hosts
+     container_name: ${MAGE}
+
+   phpmyadmin:
+     image: phpmyadmin/phpmyadmin
+     ports:
+       - "${PHPADMINPORT}:80"
+     links:
+       - db
+     container_name: ${PHPADMIN}
+
+volumes:
+    db_data:
